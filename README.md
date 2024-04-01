@@ -1,6 +1,31 @@
 
 # XDC transaction signing with Builder Vault
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor client as XDC client
+    participant Blockchain as XDC Blockchain<br> RPC API
+    box Builder Vault
+      participant TSM1 as MPC Wallet <br>(private key share 1)
+      participant TSM2 as MPC Wallet <br>(private key share 2)
+    end
+    #note over client,TSM2: Create wallet
+    opt
+      client ->> TSM1: create master key
+      client ->> TSM1: create XDC wallet 
+    end
+
+    #note over client,TSM2: Create transations
+    client ->> Blockchain: get blockchain inputs (gas, nonce, balance) for new tx<br>(sender wallet)
+    client ->> client: construct unsigned tx
+    client ->> TSM1: request signature (unsigned tx hash)
+    TSM1 -->> client: return partial signature
+    client ->> TSM2: request signature (unsigned tx hash)
+    TSM2 -->> client: return partial signature
+    client ->> client: combine partial signatures
+    client ->> Blockchain: broadcast signed tx<br>(signed tx)
+```
 
 ### Prerequisites
   - Go https://go.dev/doc/install
