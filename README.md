@@ -78,9 +78,3 @@ go run 4-broadcast-signed-transaction/main.go
   - Faucets: https://faucet.apothem.network https://faucet.blocksscan.io
   - ChainId: 51
   - Web wallet: https://wallet.apothem.network https://mnrpc.xinfin.network
-
-<!--
-ToDo:
-- Sequence diagram  
-- prize for completion?
--->

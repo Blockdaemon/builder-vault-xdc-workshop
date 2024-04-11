@@ -21,15 +21,6 @@ var serverMtlsPublicKeys = map[int]string{
 
 func main() {
 
-	// // Ignore CA and cert verification for TLS client (TSM Node endpoints are self-signed)
-	// tlsConfig := &tls.Config{
-	// 	InsecureSkipVerify: true,
-	// 	VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
-	// 		return nil
-	// 	},
-	// }
-	// http.DefaultTransport.(*http.Transport).TLSClientConfig = tlsConfig
-
 	// Decode server public keys to bytes for use in TLS client authentication
 	serverPKIXPublicKeys := make([][]byte, len(serverMtlsPublicKeys))
 	for i := range serverMtlsPublicKeys {
@@ -50,7 +41,7 @@ func main() {
 	// Create TSM SDK clients with mTLS authentication and public key pinning
 	clients := make([]*tsm.Client, len(serverMtlsPublicKeys))
 	for i := range clients {
-		config, err := tsm.Configuration{URL: fmt.Sprintf("https://tsm-sandbox.prd.wallet.blockdaemon.app:%v", 8080+i)}.WithMTLSAuthentication("./client.key", "./client.crt", serverPKIXPublicKeys[i])
+		config, err := tsm.Configuration{URL: fmt.Sprintf("https://tsm-sandbox.prd.wallet.blockdaemon.app:%v", 8080+i)}.WithMTLSAuthentication("../client.key", "../client.crt", serverPKIXPublicKeys[i])
 		if err != nil {
 			panic(err)
 		}
@@ -62,7 +53,6 @@ func main() {
 
 	// Generate an ECDSA master key
 
-	// ToDo: see why static node indices are not sufficient and why dynamic public keys are needed
 	// The public keys of the other players to encrypt MPC protocol data end-to-end
 	playerB64Pubkeys := []string{
 		"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtDFBfanInAMHNKKDG2RW/DiSnYeI7scVvfHIwUIRdbPH0gBrsilqxlvsKZTakN8om/Psc6igO+224X8T0J9eMg==",
@@ -83,7 +73,6 @@ func main() {
 
 	threshold := 1 // The security threshold for this key
 	keyGenPlayers := []int{0, 1, 2}
-	//sessionConfig := tsm.NewSessionConfig(tsm.GenerateSessionID(), keyGenPlayers, nil)
 	sessionConfig := tsm.NewSessionConfig(tsm.GenerateSessionID(), keyGenPlayers, playerPubkeys)
 
 	ctx := context.Background()
@@ -134,6 +123,6 @@ func main() {
 	}
 
 	address := crypto.PubkeyToAddress(*ecdsaPub)
-	fmt.Println("Derived wallet address for XDC chain path m/44/51/0/0:", address)
+	fmt.Println("XDC chain path m/44/51/0/0 derived wallet address:", address)
 
 }
