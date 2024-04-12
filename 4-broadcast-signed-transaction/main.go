@@ -25,11 +25,11 @@ func main() {
 		panic(err)
 	}
 
-	// Deserialize the rawUnsignedTransaction
+	// Deserialize the transactionHashSignature
 	transactionHashSignatureBytes, err := hex.DecodeString(transactionHashSignature)
 
 	// Initialize go-ethereum client
-	client, err := ethclient.Dial("https://rpc.apothem.network")
+	client, err := ethclient.Dial("https://erpc.apothem.network")
 	if err != nil {
 		panic(err)
 	}
@@ -44,6 +44,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	raw, err := rlp.EncodeToBytes(signedTx)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nSigned raw transaction (RLP encoded): 0x%x", raw)
 
 	// Broadcast the signed transaction to the blockchain
 	err = client.SendTransaction(context.Background(), signedTx)

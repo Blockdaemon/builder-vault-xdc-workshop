@@ -9,6 +9,7 @@ sequenceDiagram
     box Builder Vault
       participant TSM1 as MPC Wallet <br>(private key share 1)
       participant TSM2 as MPC Wallet <br>(private key share 2)
+      participant TSM3 as MPC Wallet <br>(private key share 3)
     end
     #note over client,TSM2: Create wallet
     opt
@@ -23,17 +24,17 @@ sequenceDiagram
     TSM1 -->> client: return partial signature
     client ->> TSM2: request signature (unsigned tx hash)
     TSM2 -->> client: return partial signature
+    client ->> TSM3: request signature (unsigned tx hash)
+    TSM3 -->> client: return partial signature
     client ->> client: combine partial signatures
     client ->> Blockchain: broadcast signed tx<br>(signed tx)
 ```
 
 ### Prerequisites
   - Go https://go.dev/doc/install
-  - IDE recommended
-  - Register for a demo Builder Vault tenant: https://www.blockdaemon.com/wallet/builder-vault
-  - Download SDK bundle provided in registration email (extract authentication certificates)
-  - Place Builder Vault authentication certificates in working directory
-
+  - Register a demo Builder Vault tenant: https://www.blockdaemon.com/wallet/builder-vault
+  - Download SDK bundle provided in registration email (extract auth certificates)
+  - Place Builder Vault `client.crt` & `client.key` in working directory
 
 ### Step 1. Create Wallet with Builder Vault and XDC chain path
 ```shell
@@ -73,8 +74,9 @@ go run 4-broadcast-signed-transaction/main.go
 
 
 ## XDC Testnet Network details:
-  - RPC endpoint: https://rpc.apothem.network
+  - RPC endpoint: https://erpc.apothem.network
   - Block explorers: https://explorer.apothem.network https://apothem.blocksscan.io
   - Faucets: https://faucet.apothem.network https://faucet.blocksscan.io
   - ChainId: 51
   - Web wallet: https://wallet.apothem.network https://mnrpc.xinfin.network
+  - TX decoder: https://rawtxdecode.in/

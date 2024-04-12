@@ -41,7 +41,7 @@ func main() {
 	// Create TSM SDK clients with mTLS authentication and public key pinning
 	clients := make([]*tsm.Client, len(serverMtlsPublicKeys))
 	for i := range clients {
-		config, err := tsm.Configuration{URL: fmt.Sprintf("https://tsm-sandbox.prd.wallet.blockdaemon.app:%v", 8080+i)}.WithMTLSAuthentication("../client.key", "../client.crt", serverPKIXPublicKeys[i])
+		config, err := tsm.Configuration{URL: fmt.Sprintf("https://tsm-sandbox.prd.wallet.blockdaemon.app:%v", 8080+i)}.WithMTLSAuthentication("./client.key", "./client.crt", serverPKIXPublicKeys[i])
 		if err != nil {
 			panic(err)
 		}
@@ -53,16 +53,16 @@ func main() {
 
 	// Generate an ECDSA master key
 
-	// The public keys of the other players to encrypt MPC protocol data end-to-end
+	// Set the public keys of the other players to encrypt MPC protocol data end-to-end
 	playerB64Pubkeys := []string{
 		"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtDFBfanInAMHNKKDG2RW/DiSnYeI7scVvfHIwUIRdbPH0gBrsilqxlvsKZTakN8om/Psc6igO+224X8T0J9eMg==",
 		"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEqvSkhonTeNhlETse8v3X7g4p100EW9xIqg4aRpD8yDXgB0UYjhd+gFtOCsRT2lRhuqNForqqC+YnBsJeZ4ANxg==",
 		"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEBaHCIiViexaVaPuER4tE6oJE3IBA0U//GlB51C1kXkT07liVc51uWuYk78wi4e1unxC95QbeIfnDCG2i43fW3g==",
 	}
 
+	// iterate over other players public keys and convert them
 	playerPubkeys := map[int][]byte{}
 	playerIds := []int{0, 1, 2}
-	// iterate over other players public keys and convert them
 	for i := range playerIds {
 		pubkey, err := base64.StdEncoding.DecodeString(playerB64Pubkeys[i])
 		if err != nil {
@@ -71,8 +71,8 @@ func main() {
 		playerPubkeys[playerIds[i]] = pubkey
 	}
 
-	threshold := 1 // The security threshold for this key
-	keyGenPlayers := []int{0, 1, 2}
+	threshold := 1  // Set the security threshold for this key
+	keyGenPlayers := []int{0, 1, 2} // Set the MPC participants
 	sessionConfig := tsm.NewSessionConfig(tsm.GenerateSessionID(), keyGenPlayers, playerPubkeys)
 
 	ctx := context.Background()
@@ -86,17 +86,10 @@ func main() {
 			return err
 		})
 	}
-
 	if err := eg.Wait(); err != nil {
 		panic(err)
 	}
 
-	// Validate key IDs
-	for i := 1; i < len(masterKeyIDs); i++ {
-		if masterKeyIDs[0] != masterKeyIDs[i] {
-			panic("key IDs do not match")
-		}
-	}
 	masterKeyID := masterKeyIDs[0]
 	fmt.Println("Builder Vault master key ID:", masterKeyID)
 
@@ -111,17 +104,15 @@ func main() {
 		}
 	}
 
-	// Convert the public key into an Ethereum address
+	// Convert the public key into ECDSA secp256k1 public key and then Ethereum address
 	publicKeyBytes, err := tsmutils.PKIXPublicKeyToUncompressedPoint(pkixPublicKeys[0])
 	if err != nil {
 		panic(err)
 	}
-
 	ecdsaPub, err := crypto.UnmarshalPubkey(publicKeyBytes)
 	if err != nil {
 		panic(err)
 	}
-
 	address := crypto.PubkeyToAddress(*ecdsaPub)
 	fmt.Println("XDC chain path m/44/51/0/0 derived wallet address:", address)
 

@@ -58,8 +58,6 @@ func main() {
 		}
 	}
 
-	// ToDo: see why static node indices are not sufficient and why dynamic public keys are needed
-	// The public keys of the other players to encrypt MPC protocol data end-to-end
 	playerB64Pubkeys := []string{
 		"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtDFBfanInAMHNKKDG2RW/DiSnYeI7scVvfHIwUIRdbPH0gBrsilqxlvsKZTakN8om/Psc6igO+224X8T0J9eMg==",
 		"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEqvSkhonTeNhlETse8v3X7g4p100EW9xIqg4aRpD8yDXgB0UYjhd+gFtOCsRT2lRhuqNForqqC+YnBsJeZ4ANxg==",
@@ -68,7 +66,6 @@ func main() {
 
 	playerPubkeys := map[int][]byte{}
 	playerIds := []int{0, 1, 2}
-	// iterate over other players public keys and convert them
 	for i := range playerIds {
 		pubkey, err := base64.StdEncoding.DecodeString(playerB64Pubkeys[i])
 		if err != nil {
@@ -82,7 +79,6 @@ func main() {
 	unsignedTxHashBytes, err := hex.DecodeString(unsignedTxHash)
 	partialSignaturesLock := sync.Mutex{}
 	partialSignatures := make([][]byte, 0)
-	//sessionConfig := tsm.NewStaticSessionConfig(tsm.GenerateSessionID(),3)
 	Players := []int{0, 1, 2}
 	sessionConfig := tsm.NewSessionConfig(tsm.GenerateSessionID(), Players, playerPubkeys)
 	ctx := context.Background()
@@ -110,7 +106,7 @@ func main() {
 		panic(err)
 	}
 
-	// Construct signature in R|S|V format
+	// Construct ethereum-based signature in R|S|V format
 	sigBytes := make([]byte, 2*32+1)
 	copy(sigBytes[0:32], signature.R())
 	copy(sigBytes[32:64], signature.S())

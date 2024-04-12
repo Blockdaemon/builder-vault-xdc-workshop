@@ -21,7 +21,7 @@ func main() {
 	destinationAddress := common.HexToAddress("0x45e9B0983dD4544C8f5e8Ba55f8e7Cb4Bf0543cd")
 
 	// Initialize go-ethereum client
-	client, err := ethclient.Dial("https://rpc.apothem.network")
+	client, err := ethclient.Dial("https://erpc.apothem.network")
 	if err != nil {
 		panic(err)
 	}
