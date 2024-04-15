@@ -4,8 +4,9 @@
 ```mermaid
 sequenceDiagram
     autonumber
-    actor client as XDC client
+    actor client1 as XDC client
     participant Blockchain as XDC Blockchain<br> RPC API
+    actor client2 as BuilderVault client
     box Builder Vault
       participant TSM1 as MPC Wallet <br>(private key share 1)
       participant TSM2 as MPC Wallet <br>(private key share 2)
@@ -13,21 +14,24 @@ sequenceDiagram
     end
     #note over client,TSM2: Create wallet
     opt
-      client ->> TSM1: create master key
-      client ->> TSM1: create XDC wallet 
+      client2 ->> TSM1: create master key
+      client2 ->> TSM1: create XDC wallet 
     end
 
     #note over client,TSM2: Create transations
-    client ->> Blockchain: get blockchain inputs (gas, nonce, balance) for new tx<br>(sender wallet)
-    client ->> client: construct unsigned tx
-    client ->> TSM1: request signature (unsigned tx hash)
-    TSM1 -->> client: return partial signature
-    client ->> TSM2: request signature (unsigned tx hash)
-    TSM2 -->> client: return partial signature
-    client ->> TSM3: request signature (unsigned tx hash)
-    TSM3 -->> client: return partial signature
-    client ->> client: combine partial signatures
-    client ->> Blockchain: broadcast signed tx<br>(signed tx)
+    client1 ->> Blockchain: get blockchain inputs (gas, nonce, balance) for new tx<br>(sender wallet)
+    client1 ->> client1: construct unsigned tx
+    client1 ->> client2: request signature (unsigned tx hash)
+
+    client2 ->> TSM1: request share1 signature (unsigned tx hash)
+    TSM1 -->> client2: return partial signature
+    client2 ->> TSM2: request share2 signature (unsigned tx hash)
+    TSM2 -->> client2: return partial signature
+    client2 ->> TSM3: request share3 signature (unsigned tx hash)
+    TSM3 -->> client2: return partial signature
+    client2 ->> client2: combine partial signatures
+    client2 -->> client1: return signature
+    client1 ->> Blockchain: broadcast signed tx<br>(signed tx)
 ```
 
 ### Prerequisites

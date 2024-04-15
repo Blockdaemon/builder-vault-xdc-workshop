@@ -56,6 +56,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	} else {
-		fmt.Printf("Broadcasted transaction hash: https://apothem.blocksscan.io/txs/%s\n", signedTx.Hash().String())
+		fmt.Printf("\nBroadcasted transaction hash: https://apothem.blocksscan.io/txs/%s\n", signedTx.Hash().String())
 	}
 }
